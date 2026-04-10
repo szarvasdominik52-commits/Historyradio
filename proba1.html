@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>History Rádió - Független Időzítő</title>
+    <style>
+        body { 
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%); 
+            color: #fff; font-family: 'Segoe UI', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; height: 100vh; margin: 0; overflow: hidden;
+        }
+
+        #studio { display: none; width: 100%; text-align: center; }
+
+        /* KÉPEK ÉS DOBOZOK */
+        .container { display: flex; gap: 40px; justify-content: center; align-items: center; padding: 20px; }
+        .doboz { 
+            background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 30px; 
+            border: 2px solid #333; transition: all 0.4s ease; width: 250px; opacity: 0.3;
+        }
+        .aktiv-doboz { opacity: 1; transform: scale(1.1); border-color: #ffcc00; background: rgba(255, 204, 0, 0.1); }
+
+        img { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 4px solid #222; }
+        .aktiv-doboz img { border-color: #ffcc00; box-shadow: 0 0 30px #ffcc00; }
+
+        /* ALSÓ STÍLUSOS FELIRAT */
+        #informacios-sav {
+            position: fixed; bottom: 40px; width: 80%; height: 100px;
+            background: rgba(0, 0, 0, 0.8); border-left: 10px solid #ffcc00;
+            display: none; align-items: center; padding-left: 40px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.5);
+        }
+        #felirat-szoveg { color: #ffcc00; font-size: 2.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; }
+
+        /* INDÍTÓ GOMB */
+        #indito { padding: 25px 60px; font-size: 2rem; cursor: pointer; background: #ffcc00; border: none; border-radius: 100px; font-weight: bold; }
+        
+        #ora { position: absolute; top: 20px; right: 20px; font-family: monospace; color: #555; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <button id="indito" onclick="inditas()">ADÁS INDÍTÁSA</button>
+
+    <div id="studio">
+        <div id="ora">00:00</div>
+        <h1 style="color:#ffcc00; font-size: 3rem; margin-bottom: 50px;">HISTORY RÁDIÓ ● LIVE</h1>
+        
+        <div class="container">
+            <div id="d1" class="doboz"><img src="riporter1.JPG"></div>
+            <div id="dk" class="doboz"><img src="Kossuth.jpg"></div>
+            <div id="d2" class="doboz"><img src="riporter2.png"></div>
+        </div>
+
+        <div id="informacios-sav">
+            <div id="felirat-szoveg"></div>
+        </div>
+    </div>
+
+    <audio id="zene" src="kossuthhang.MP3"></audio>
+
+    <script>
+        function inditas() {
+            const audio = document.getElementById('zene');
+            const sav = document.getElementById('informacios-sav');
+            const felirat = document.getElementById('felirat-szoveg');
+            const oraKijelzo = document.getElementById('ora');
+            
+            const kepek = {
+                r1: document.getElementById('d1'),
+                rk: document.getElementById('dk'),
+                r2: document.getElementById('d2')
+            };
+
+            document.getElementById('indito').style.display = 'none';
+            document.getElementById('studio').style.display = 'block';
+            
+            audio.play();
+
+            // KEZDÉSI IDŐPONT RÖGZÍTÉSE
+            const startIdo = Date.now();
+
+            const frissites = setInterval(() => {
+                // ELTELT IDŐ KISZÁMÍTÁSA (független a zene hosszától!)
+                const most = Date.now();
+                const masodperc = (most - startIdo) / 1000;
+                
+                // Óra kijelzése
+                oraKijelzo.innerText = masodperc.toFixed(1) + "s";
+
+                // Alaphelyzet törlése
+                Object.values(kepek).forEach(d => d.classList.remove('aktiv-doboz'));
+                sav.style.display = "none";
+
+                let nev = "";
+                let ki = "";
+
+                // IDŐZÍTÉSI SZABÁLYOK
+                if (masodperc >= 11 && masodperc <= 45) { nev = "Riporter 2"; ki = "r2"; }
+                else if (masodperc >= 46 && masodperc <= 59) { nev = "Riporter 1"; ki = "r1"; }
+                else if (masodperc >= 60 && masodperc <= 73) { nev = "Kossuth Lajos"; ki = "rk"; }
+                else if (masodperc >= 74 && masodperc <= 84) { nev = "Riporter 2"; ki = "r2"; }
+                else if (masodperc >= 85 && masodperc <= 96) { nev = "Kossuth Lajos"; ki = "rk"; }
+                else if (masodperc >= 97 && masodperc <= 107) { nev = "Riporter 1"; ki = "r1"; }
+                else if (masodperc >= 108 && masodperc <= 117) { nev = "Kossuth Lajos"; ki = "rk"; }
+                else if (masodperc >= 118 && masodperc <= 123) { nev = "Riporter 2"; ki = "r2"; }
+                else if (masodperc >= 124 && masodperc <= 134) { nev = "Kossuth Lajos"; ki = "rk"; }
+                else if (masodperc >= 135 && masodperc <= 139) { nev = "Riporter 1"; ki = "r1"; }
+                else if (masodperc >= 140 && masodperc <= 149) { nev = "Kossuth Lajos"; ki = "rk"; }
+                else if (masodperc >= 150 && masodperc <= 181) { nev = "Riporter 2"; ki = "r2"; }
+
+                // MEGJELENÍTÉS
+                if (nev !== "") {
+                    felirat.innerText = "🎤 MOST BESZÉL: " + nev;
+                    sav.style.display = "flex";
+                    kepek[ki].classList.add('aktiv-doboz');
+                }
+
+                // Adás vége (leállítjuk az órát 182 másodpercnél)
+                if (masodperc > 182) {
+                    clearInterval(frissites);
+                    felirat.innerText = "ADÁS VÉGE";
+                }
+
+            }, 100); // 0.1 másodpercenként ellenőriz
+        }
+    </script>
+</body>
+</html>
